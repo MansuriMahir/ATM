@@ -1,36 +1,87 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
+from PIL import Image, ImageTk  # pip install pillow
 import sys
 import os
 import random
+import sqlite3
 
 # Add the parent directory to sys.path to allow imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# Define user dictionary
+user = {}
+
 # Import ATM classes and functions
 from atm_utils import ADMIN_ACCOUNT, ADMIN_PIN, generate_otp
-from Atm import ATM, Admin, user
+from Atm import ATM, Admin
+from atm_utils import get_user
 
 class ATMApp(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("ATM Machine")
         self.geometry("600x400")
-        self.configure(bg="#f0f0f0")
-        
-        # Set app icon and style
-        self.style = ttk.Style()
-        self.style.configure("TButton", font=("Arial", 12), padding=5)
-        self.style.configure("TLabel", font=("Arial", 12), background="#f0f0f0")
-        self.style.configure("Header.TLabel", font=("Arial", 16, "bold"), background="#f0f0f0")
+        self.configure(bg="#b3d1ff")  # Light blue background
+
+        # Set background gradient (simulate with a solid color for simplicity)
+        # For a real gradient, use a Canvas and draw rectangles or use a gradient image
+        # Optionally, you can use a background image as before
+        try:
+            bg_image = Image.open("background.jpg")
+            bg_image = bg_image.resize((600, 400))
+            self.bg_photo = ImageTk.PhotoImage(bg_image)
+            bg_label = tk.Label(self, image=self.bg_photo)
+            bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+        except Exception:
+            pass  # If no image, just use background color
+
+        # Style
+        style = ttk.Style(self)
+        style.theme_use("clam")
+        style.configure("TButton",
+                        font=("Consolas", 12, "bold"),
+                        padding=10,
+                        background="#1565c0",  # Navy blue
+                        foreground="#ffffff",
+                        borderwidth=0,
+                        focusthickness=3,
+                        focuscolor="#1565c0")
+        style.map("TButton",
+                  background=[('active', '#1976d2')],  # Lighter blue on hover
+                  foreground=[('active', '#ffffff')])
+        style.configure("TLabel",
+                        font=("Consolas", 14),
+                        background="#b3d1ff",
+                        foreground="#1565c0")
+        style.configure("Header.TLabel",
+                        font=("Consolas", 20, "bold"),
+                        background="#b3d1ff",
+                        foreground="#0d1333")
+
+        # Main frame (centered, semi-transparent)
+        self.main_frame = tk.Frame(self, bg="#ffffff", bd=2, relief="ridge")
+        self.main_frame.place(relx=0.5, rely=0.5, anchor="center", width=400, height=320)
+
+        # Load user data from the database
+        conn = sqlite3.connect(os.path.join(os.path.dirname(os.path.abspath(__file__)), "atm-machine-api", "atm.db"))
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users")
+        users = cursor.fetchall()
+        conn.close()
+
+        for user_data in users:
+            account_number = user_data[0]
+            pin = user_data[1]
+            balance = user_data[2]
+            full_name = user_data[3]
+            address = user_data[4]
+            blood_group = user_data[5]
+            user[account_number] = ATM(account_number, pin, balance, full_name, address, blood_group)
         
         # Current user
         self.current_user = None
         self.admin = None
-        
-        # Create main frame
-        self.main_frame = tk.Frame(self, bg="#f0f0f0")
-        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
         
         # Show main menu
         self.show_main_menu()
@@ -46,22 +97,24 @@ class ATMApp(tk.Tk):
         
         # Header
         header = ttk.Label(self.main_frame, text="Welcome to ATM Machine", style="Header.TLabel")
-        header.pack(pady=(0, 20))
+        header.pack(pady=(30, 20))
         
         # Main menu buttons
         buttons = [
             ("Login as Admin", self.admin_login),
             ("Login to Existing Account", self.user_login),
-            ("Create New Account", self.create_account),
-            ("View Total Users", self.view_total_users),
-            ("View User List", self.view_user_list),
-            ("Exit", self.quit)
+            ("Create New Account", self.create_account)
+
         ]
         
         for text, command in buttons:
             btn = ttk.Button(self.main_frame, text=text, command=command, width=30)
-            btn.pack(pady=5)
-    
+            btn.pack(fill='x', padx=60, pady=8)
+        
+        # Add Exit button at the bottom
+        exit_btn = ttk.Button(self.main_frame, text="Exit", command=self.quit, width=30)
+        exit_btn.pack(fill='x', padx=60, pady=(30, 8))
+
     def admin_login(self):
         """Handle admin login"""
         admin_account = simpledialog.askstring("Admin Login", "Enter Admin Account Name:")
@@ -73,7 +126,7 @@ class ATMApp(tk.Tk):
             if not admin_pin:
                 return
                 
-            self.admin = Admin(admin_account, ADMIN_PIN)
+            self.admin = Admin(admin_account, admin_pin)
             if self.admin.authenticate(admin_pin):
                 self.show_admin_panel()
             else:
@@ -226,46 +279,58 @@ class ATMApp(tk.Tk):
             form_frame = tk.Frame(self.main_frame, bg="#f0f0f0")
             form_frame.pack(fill=tk.BOTH, expand=True)
 
+            # Get current user data
+            current_user = user[acc_no]
+
             # Full Name
-            name_label = ttk.Label(form_frame, text="Full Name:", style="TLabel")
-            name_label.grid(row=0, column=0, padx=10, pady=10, sticky=tk.W)
-            name_entry = ttk.Entry(form_frame, font=("Arial", 12), width=30)
-            name_entry.grid(row=0, column=1, padx=10, pady=10)
-            name_entry.insert(0, user[acc_no].full_name)
+            ttk.Label(form_frame, text="Full Name:").pack(pady=5)
+            full_name_var = tk.StringVar(value=current_user.full_name)
+            full_name_entry = ttk.Entry(form_frame, textvariable=full_name_var, width=30)
+            full_name_entry.pack(pady=5)
 
             # Address
-            address_label = ttk.Label(form_frame, text="Address:", style="TLabel")
-            address_label.grid(row=1, column=0, padx=10, pady=10, sticky=tk.W)
-            address_entry = ttk.Entry(form_frame, font=("Arial", 12), width=30)
-            address_entry.grid(row=1, column=1, padx=10, pady=10)
-            address_entry.insert(0, user[acc_no].address)
+            ttk.Label(form_frame, text="Address:").pack(pady=5)
+            address_var = tk.StringVar(value=current_user.address)
+            address_entry = ttk.Entry(form_frame, textvariable=address_var, width=30)
+            address_entry.pack(pady=5)
 
             # Blood Group
-            blood_label = ttk.Label(form_frame, text="Blood Group:", style="TLabel")
-            blood_label.grid(row=2, column=0, padx=10, pady=10, sticky=tk.W)
-            blood_entry = ttk.Entry(form_frame, font=("Arial", 12), width=30)
-            blood_entry.grid(row=2, column=1, padx=10, pady=10)
-            blood_entry.insert(0, user[acc_no].blood_group)
+            ttk.Label(form_frame, text="Blood Group:").pack(pady=5)
+            blood_group_var = tk.StringVar(value=current_user.blood_group)
+            blood_group_entry = ttk.Entry(form_frame, textvariable=blood_group_var, width=30)
+            blood_group_entry.pack(pady=5)
 
-            # Save changes function
             def save_changes():
-                user[acc_no].full_name = name_entry.get().strip()
-                user[acc_no].address = address_entry.get().strip()
-                user[acc_no].blood_group = blood_entry.get().strip()
+                try:
+                    # Update user object
+                    current_user.full_name = full_name_var.get()
+                    current_user.address = address_var.get()
+                    current_user.blood_group = blood_group_var.get()
 
-                # User details updated in the user dictionary above; no need to update user_accounts
+                    # Update database
+                    conn = sqlite3.connect(os.path.join(os.path.dirname(os.path.abspath(__file__)), "atm-machine-api", "atm.db"))
+                    cursor = conn.cursor()
+                    cursor.execute("""
+                        UPDATE users 
+                        SET full_name = ?, address = ?, blood_group = ?
+                        WHERE account_number = ?
+                    """, (current_user.full_name, current_user.address, 
+                         current_user.blood_group, acc_no))
+                    conn.commit()
+                    conn.close()
 
-                messagebox.showinfo("Success", "Details updated successfully!")
-                self.show_admin_panel()
+                    messagebox.showinfo("Success", "User details updated successfully!")
+                    self.show_admin_panel()
+                except Exception as e:
+                    messagebox.showerror("Error", f"Failed to update user details: {str(e)}")
 
-            # Buttons
-            btn_frame = tk.Frame(form_frame, bg="#f0f0f0")
-            btn_frame.grid(row=3, column=0, columnspan=2, padx=10, pady=10)
+            # Save button
+            save_btn = ttk.Button(form_frame, text="Save Changes", command=save_changes)
+            save_btn.pack(pady=20)
 
-            save_btn = ttk.Button(btn_frame, text="Save Changes", command=save_changes)
-            save_btn.pack(side=tk.LEFT, padx=5)
-
-            back_btn = ttk.Button(self.main_frame, text="Back to Admin Panel", command=self.show_admin_panel)
+            # Back button
+            back_btn = ttk.Button(form_frame, text="Back to Admin Panel",
+                                command=self.show_admin_panel)
             back_btn.pack(pady=10)
         else:
             messagebox.showerror("Error", "Account not found.")
@@ -321,7 +386,12 @@ class ATMApp(tk.Tk):
         
         # Header
         header = ttk.Label(self.main_frame, text=f"Welcome, Account {self.current_user.account_number}", style="Header.TLabel")
-        header.pack(pady=(0, 20))
+        header.pack(pady=(0, 10))
+
+        # Balance Label
+        balance = self.current_user.get_balance()
+        balance_label = ttk.Label(self.main_frame, text=f"Current Balance: {balance}", style="TLabel")
+        balance_label.pack(pady=(0, 20))
 
         buttons = [
             ("Check Balance", self.check_balance),
@@ -388,7 +458,13 @@ class ATMApp(tk.Tk):
             self.current_user.address = address_entry.get().strip()
             self.current_user.blood_group = blood_entry.get().strip()
 
-            # User details updated in the user dictionary above; no need to update user_accounts
+            # Update user details in the database
+            conn = sqlite3.connect(os.path.join(os.path.dirname(os.path.abspath(__file__)), "atm-machine-api", "atm.db"))
+            cursor = conn.cursor()
+            cursor.execute("UPDATE users SET full_name=?, address=?, blood_group=? WHERE account_number=?",
+                           (self.current_user.full_name, self.current_user.address, self.current_user.blood_group, self.current_user.account_number))
+            conn.commit()
+            conn.close()
 
         # Buttons
         btn_frame = tk.Frame(form_frame, bg="#f0f0f0")
@@ -406,6 +482,14 @@ class ATMApp(tk.Tk):
             amount = simpledialog.askfloat("Withdraw", "Enter withdrawal amount:")
             if amount is None:
                 return
+
+            pin = simpledialog.askinteger("Withdraw", "Enter your PIN:")
+            if pin is None:
+                return
+
+            if not self.current_user.authenticate(pin):
+                messagebox.showerror("Error", "Incorrect PIN. Please try again.")
+                return
                 
             result = self.current_user.withdraw(amount)
             if result == "Withdrawal Successful!":
@@ -414,7 +498,7 @@ class ATMApp(tk.Tk):
             else:
                 messagebox.showerror("Error", result)
         except ValueError:
-            messagebox.showerror("Error", "Invalid amount. Please enter a number.")
+            messagebox.showerror("Error", "Invalid amount or PIN. Please enter a number.")
     
     def deposit_money(self):
         """Deposit money to account"""
@@ -432,34 +516,43 @@ class ATMApp(tk.Tk):
     def show_transaction_history(self):
         """View transaction history"""
         self.clear_frame()
-        
+
         # Header
         header = ttk.Label(self.main_frame, text="Transaction History", style="Header.TLabel")
         header.pack(pady=(0, 20))
-        
+
         # Create a frame for the history
         history_frame = tk.Frame(self.main_frame, bg="#f0f0f0")
         history_frame.pack(fill=tk.BOTH, expand=True)
-        
+
         # Create scrollbar
         scrollbar = tk.Scrollbar(history_frame)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
+
         # Create text widget for displaying history
-        history_text = tk.Text(history_frame, wrap=tk.WORD, yscrollcommand=scrollbar.set, 
+        history_text = tk.Text(history_frame, wrap=tk.WORD, yscrollcommand=scrollbar.set,
                               font=("Arial", 12), bg="#ffffff", height=10)
         history_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.config(command=history_text.yview)
-        
+
         # Insert history
-        history = self.current_user.view_history()
-        history_text.insert(tk.END, history)
-        
+        self.display_transaction_history()
+
         # Back button
-        back_btn = ttk.Button(self.main_frame, text="Back to User Menu", 
+        back_btn = ttk.Button(self.main_frame, text="Back to User Menu",
                              command=self.show_user_menu)
         back_btn.pack(pady=10)
-    
+
+    def display_transaction_history(self):
+        history_window = tk.Toplevel(self.main_frame)
+        history_window.title("Transaction History")
+        history_window.geometry("400x300")
+
+        self.history_text = tk.Text(history_window, wrap=tk.WORD)
+        self.history_text.pack(expand=True, fill=tk.BOTH)
+        for transaction in self.current_user.transaction_history:
+            print(transaction)
+            self.history_text.insert(tk.END, transaction + "\n")
     def change_pin(self):
         """Change user PIN"""
         current_pin = simpledialog.askinteger("Change PIN", "Enter your current PIN:")
@@ -475,6 +568,15 @@ class ATMApp(tk.Tk):
             return
 
         self.current_user.pin = new_pin
+
+        # Update PIN in the database
+        conn = sqlite3.connect(os.path.join(os.path.dirname(os.path.abspath(__file__)), "atm-machine-api", "atm.db"))
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET pin=? WHERE account_number=?",
+                       (new_pin, self.current_user.account_number))
+        conn.commit()
+        conn.close()
+
         messagebox.showinfo("Success", "PIN changed successfully!")
     
     def logout(self):
@@ -554,6 +656,11 @@ class ATMApp(tk.Tk):
                 blood_group = blood_entry.get().strip()
                 
                 user[new_acc] = ATM(new_acc, new_pin, init_balance, full_name, address, blood_group)
+                
+                # Call create_user to store the user data in the database
+                from atm_utils import create_user
+                create_user(new_acc, new_pin, init_balance, full_name, address, blood_group)
+                
                 messagebox.showinfo("Success", f"Account created successfully! Account No: {new_acc}")
                 self.show_main_menu()
             except ValueError:
@@ -605,7 +712,7 @@ class ATMApp(tk.Tk):
                 user_text.insert(tk.END, f"Balance       : {acc_obj.balance}\n")
                 user_text.insert(tk.END, f"Transaction   : {len(acc_obj.history)-1}\n")
                 user_text.insert(tk.END, f"Last Transaction: {last_txn}\n")
-                user_text.insert(tk.END, "-" * 30 + "\n\n")
+                user_text.insert(tk.END, "-" * 30 + "\n\n") 
         
         # Back button
         back_btn = ttk.Button(self.main_frame, text="Back to Main Menu", 

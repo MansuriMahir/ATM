@@ -1,0 +1,107 @@
+
+ATM Machine Project - File Details and Usage Steps
+==================================================
+
+Project Structure:
+------------------
+ATM_Machine/
+├── Atm_Admin.py
+├── Atm.py
+├── atm_gui.py
+├── atm_utils.py
+├── atm.db
+├── __pycache__/
+├── atm-machine-api/ (API code, not used in GUI)
+│   ├── src/
+│   │   ├── main.py
+│   │   ├── api/routes.py
+│   │   ├── models/account.py
+│   │   ├── services/atm_service.py
+│   │   └── utils/__init__.py
+│   ├── requirements.txt
+│   └── README.md
+├── LICENSE
+├── README.md
+└── ATM_Machine_setps.txt (this file)
+
+Key Files and Their Purpose:
+---------------------------
+1. atm_gui.py
+   - The main GUI application for the ATM Machine using tkinter.
+   - Handles user/admin login, account creation, transactions, and user management.
+   - Connects to the SQLite database (atm.db) to load and update user data.
+
+2. Atm.py
+   - Contains the ATM and Admin classes.
+   - Defines user/admin authentication, account operations (deposit, withdraw, etc.), and admin functions.
+
+3. atm_utils.py
+   - Utility functions and constants (e.g., ADMIN_ACCOUNT, ADMIN_PIN, OTP generation, user management helpers).
+   - May include database helper functions like create_user, get_user, etc.
+
+4. Atm_Admin.py
+   - Kept for backward compatibility.
+   - Refers to Admin class (now in Atm.py) and utility imports.
+
+5. atm.db
+   - SQLite database file storing all user, admin, and transaction data.
+   - Tables: users, transactions, admin, etc.
+
+6. atm-machine-api/
+   - Contains FastAPI-based REST API code (not used by the tkinter GUI).
+   - For web/API access to ATM data (optional, not required for GUI operation).
+
+How the ATM Machine Works (Step by Step):
+-----------------------------------------
+1. **Start the Application**
+   - Run `atm_gui.py` to launch the ATM Machine GUI.
+
+2. **Main Menu**
+   - Options: Login as Admin, Login to Existing Account, Create New Account, View Total Users, View User List, Exit.
+
+3. **Admin Login**
+   - Enter admin account and PIN (from atm_utils.py constants).
+   - Access admin panel: view all users, delete/reset users, view total funds, edit user details, etc.
+
+4. **User Login**
+   - Enter account number and PIN.
+   - Two-factor authentication with OTP.
+   - Access user menu: check balance, withdraw/deposit, view history, change PIN, update details, logout.
+
+5. **Create New Account**
+   - Enter account details (number, PIN, balance, name, address, blood group).
+   - Account is created in memory and stored in atm.db.
+
+6. **Database Usage**
+   - All user data is loaded from and saved to `atm.db` using sqlite3.
+   - User details, balances, and transactions are persistent.
+
+7. **Utilities**
+   - OTP generation, admin constants, and user management helpers are in atm_utils.py.
+
+8. **API (Optional)**
+   - The atm-machine-api/ folder contains FastAPI code for REST API access (not required for GUI).
+
+How to Check/Access the Database:
+---------------------------------
+- Use DB Browser for SQLite (https://sqlitebrowser.org/dl/) to open and inspect `atm.db`.
+- Or use Python's sqlite3 module to run queries and view data.
+
+How to Run the ATM Machine:
+---------------------------
+1. Make sure you have Python installed.
+2. Run the following command in PowerShell:
+   ```
+   python ATM_Machine/atm_gui.py
+   ```
+3. The GUI will open and you can use all ATM features.
+
+---
+
+How to see Database: 
+--------------------
+1. ctrl + shift + P 
+2. it will open atm.db file and show your Database 
+
+
+This file documents the structure, file usage, and step-by-step operation of your ATM Machine project.

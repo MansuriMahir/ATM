@@ -1,0 +1,6 @@
+Remove-Item -Recurse -Force ".\atm-machine-api\src\api"
+Remove-Item -Recurse -Force ".\atm-machine-api\src\models"
+Remove-Item -Recurse -Force ".\atm-machine-api\src\services"
+Remove-Item -Recurse -Force ".\atm-machine-api\src\utils"
+Remove-Item -Recurse -Force ".\atm-machine-api\src\__pycache__"
+Remove-Item -Recurse -Force ".\atm-machine-api\src\main.py"

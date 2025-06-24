@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Profile</title>
+    <style>
+        body.light {
+            background: #f4f7fa;
+            color: #222;
+        }
+        body.dark {
+            background: #181c24;
+            color: #f1f1f1;
+        }
+        body.blue {
+            background: linear-gradient(to right, #2c3e50, #3498db);
+            color: #fff;
+        }
+        body.green {
+            background: linear-gradient(120deg, #a8e063, #56ab2f);
+            color: #fff;
+        }
+        body.red {
+            background: linear-gradient(120deg, #ff5858, #f09819);
+            color: #fff;
+        }
+        body.purple {
+            background: linear-gradient(120deg, #a18cd1, #fbc2eb);
+            color: #222;
+        }
+        body.orange {
+            background: linear-gradient(120deg, #f7971e, #ffd200);
+            color: #222;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+        }
+        .container.light { background: #fff; color: #111; }
+        .container.dark { background: #23272f; color: #f1f1f1; }
+        .container.blue { background: #3498db; color: #fff; }
+        .container.green { background: #56ab2f; color: #fff; }
+        .container.red { background: #ff5858; color: #fff; }
+        .container.purple { background: #a18cd1; color: #fff; }
+        .container.orange { background: #ffd200; color: #222; }
+        .container {
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 50px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #111;
+        }
+        form label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+            color: #111;
+            text-align: left;
+        }
+        form input[type="text"], form input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .messages {
+            margin-top: 15px;
+            color: #d9534f;
+            font-size: 14px;
+        }
+        .back-link {
+            display: block;
+            margin-top: 20px;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .profile-outer {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .profile-inner {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body class="{{ selected_theme }}">
+    {% include 'navbar.html' %}
+    <div class="profile-outer">
+      <div class="profile-inner">
+        <div class="container">
+            <h1>Update Profile</h1>
+            <form method="post">
+                <label for="phone">Phone Number:</label>
+                <input type="text" name="phone" id="phone" maxlength="10" required value="{{ user.phone }}">
+                <label for="address">Address:</label>
+                <input type="text" name="address" id="address" required value="{{ user.address }}">
+                <button type="submit">Update Profile</button>
+            </form>
+            <a class="back-link" href="/change_pin">Change PIN</a>
+            <a class="back-link" href="/dashboard">&larr; Back to Dashboard</a>
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <div class="messages">
+                    <ul>
+                    {% for message in messages %}
+                      <li>{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+              {% endif %}
+            {% endwith %}
+        </div>
+      </div>
+    </div>
+</body>
+</html>

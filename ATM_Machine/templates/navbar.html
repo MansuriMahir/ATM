@@ -1,0 +1,100 @@
+{# navbar.html - Responsive Navbar for ATM Machine #}
+<nav class="navbar {{ selected_theme }}">
+  <div class="navbar-container">
+    <div class="navbar-left">
+      <a href="/dashboard" class="nav-link">Dashboard</a>
+      <a href="/withdraw" class="nav-link">Withdraw</a>
+      <a href="/deposit" class="nav-link">Deposit</a>
+      <a href="/transactions" class="nav-link">Transactions</a>
+      <a href="/profile" class="nav-link">Profile</a>
+      <a href="/change_pin" class="nav-link">Change PIN</a>
+    </div>
+    <div class="navbar-right">
+      <form method="get" action="" style="display:inline;">
+        <label for="theme" style="font-size:14px;">Theme:</label>
+        <select id="theme" name="theme" onchange="window.location.href='/set_theme/' + this.value;" style="padding:3px 8px;">
+          <option value="light" {% if selected_theme=='light' %}selected{% endif %}>Light</option>
+          <option value="dark" {% if selected_theme=='dark' %}selected{% endif %}>Dark</option>
+          <option value="blue" {% if selected_theme=='blue' %}selected{% endif %}>Blue</option>
+          <option value="green" {% if selected_theme=='green' %}selected{% endif %}>Green</option>
+          <option value="red" {% if selected_theme=='red' %}selected{% endif %}>Red</option>
+          <option value="purple" {% if selected_theme=='purple' %}selected{% endif %}>Purple</option>
+          <option value="orange" {% if selected_theme=='orange' %}selected{% endif %}>Orange</option>
+        </select>
+      </form>
+      <a href="/logout" class="nav-link logout-link">Logout</a>
+    </div>
+  </div>
+  <style>
+    .navbar {
+      width: 100%;
+      min-height: 64px;
+      height: 64px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      align-items: center;
+    }
+    .navbar-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px;
+      width: 100%;
+      height: 64px;
+    }
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      height: 64px;
+    }
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 64px;
+    }
+    .nav-link {
+      padding: 0 12px;
+      font-weight: 600;
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.2s;
+      line-height: 64px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      font-size: 1rem;
+    }
+    .nav-link.logout-link {
+      color: #222 !important;
+      font-weight: 600;
+    }
+    .navbar.light {
+      background: #fff;
+      color: #222;
+    }
+    .navbar.dark {
+      background: #23272f;
+      color: #fff;
+    }
+    .navbar.blue {
+      background: #3498db;
+      color: #fff;
+    }
+    .navbar a.nav-link:hover { text-decoration: underline; }
+    @media (max-width: 700px) {
+      .navbar {
+        min-height: 48px;
+        height: auto;
+      }
+      .navbar-container { flex-direction: column; align-items: flex-start; height: auto; }
+      .navbar-left, .navbar-right { flex-direction: column; gap: 0; height: auto; }
+      .navbar-left a, .navbar-right a { padding: 10px 0; line-height: 1.5; height: auto; }
+    }
+  </style>
+</nav>

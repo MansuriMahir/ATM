@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ATM Login</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        body.light {
+            background: #f4f7fa;
+            color: #222;
+        }
+        body.dark {
+            background: #181c24;
+            color: #f1f1f1;
+        }
+        body.blue {
+            background: linear-gradient(to right, #2c3e50, #3498db);
+            color: #fff;
+        }
+        body.green {
+            background: linear-gradient(120deg, #a8e063, #56ab2f);
+            color: #fff;
+        }
+        body.red {
+            background: linear-gradient(120deg, #ff5858, #f09819);
+            color: #fff;
+        }
+        body.purple {
+            background: linear-gradient(120deg, #a18cd1, #fbc2eb);
+            color: #222;
+        }
+        body.orange {
+            background: linear-gradient(120deg, #f7971e, #ffd200);
+            color: #222;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            color: #111;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .container.light { background: #fff; color: #111; }
+        .container.dark { background: #23272f; color: #f1f1f1; }
+        .container.blue { background: #3498db; color: #fff; }
+        .container.green { background: #56ab2f; color: #fff; }
+        .container.red { background: #ff5858; color: #fff; }
+        .container.purple { background: #a18cd1; color: #fff; }
+        .container.orange { background: #ffd200; color: #222; }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        form label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+            color: #111 !important;
+        }
+
+        form input[type="text"],
+        form input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        form input[type="submit"] {
+            width: 100%;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        form input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #555;
+            text-decoration: none;
+        }
+
+        .messages {
+            margin-top: 15px;
+            color: #d9534f;
+            font-size: 14px;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        .eye-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 18px;
+            color: #888;
+            background: none;
+            border: none;
+            outline: none;
+            padding: 0;
+        }
+
+        .pin-input-wrapper {
+            position: relative;
+        }
+
+        .welcome-message {
+            width: 100vw;
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 36px;
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #222;
+            letter-spacing: 1.5px;
+        }
+    </style>
+</head>
+<body class="{{ selected_theme }}">
+    <div class="welcome-message">
+        Welcome to ATM MACHINE
+    </div>
+    <div style="flex:1;display:flex;justify-content:center;align-items:flex-start;width:100vw;">
+        <div class="container" style="margin-top: 0; margin-bottom: 40px;">
+            <h1>ATM Login</h1>
+            <form method="post">
+                <label>Account Number:</label>
+                <input type="text" name="account_number" required>
+
+                <label>PIN:</label>
+                <div class="pin-input-wrapper">
+                    <input type="password" name="pin" id="login-pin" required>
+                    <span class="eye-toggle" onclick="togglePin('login-pin', this)">&#128065;</span>
+                </div>
+
+                <input type="submit" value="Login">
+            </form>
+
+            <a class="link" href="/register">Register a new account</a>
+
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <div class="messages">
+                    <ul>
+                    {% for message in messages %}
+                      <li>{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+              {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+    <script>
+    function togglePin(inputId, eyeElem) {
+        var input = document.getElementById(inputId);
+        if (input.type === "password") {
+            input.type = "text";
+            eyeElem.style.color = '#007bff';
+        } else {
+            input.type = "password";
+            eyeElem.style.color = '#888';
+        }
+    }
+    </script>
+</body>
+</html>

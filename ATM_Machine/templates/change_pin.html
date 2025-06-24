@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Change PIN</title>
+    <style>
+        body.light {
+            background: #f4f7fa;
+            color: #222;
+        }
+        body.dark {
+            background: #181c24;
+            color: #f1f1f1;
+        }
+        body.blue {
+            background: linear-gradient(to right, #2c3e50, #3498db);
+            color: #fff;
+        }
+        body.green {
+            background: linear-gradient(120deg, #a8e063, #56ab2f);
+            color: #fff;
+        }
+        body.red {
+            background: linear-gradient(120deg, #ff5858, #f09819);
+            color: #fff;
+        }
+        body.purple {
+            background: linear-gradient(120deg, #a18cd1, #fbc2eb);
+            color: #222;
+        }
+        body.orange {
+            background: linear-gradient(120deg, #f7971e, #ffd200);
+            color: #222;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+        }
+        .container.light { background: #fff; color: #111; }
+        .container.dark { background: #23272f; color: #f1f1f1; }
+        .container.blue { background: #3498db; color: #fff; }
+        .container.green { background: #56ab2f; color: #fff; }
+        .container.red { background: #ff5858; color: #fff; }
+        .container.purple { background: #a18cd1; color: #fff; }
+        .container.orange { background: #ffd200; color: #222; }
+        .container {
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 50px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #111;
+        }
+        form label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+            color: #111;
+            text-align: left;
+        }
+        .pin-input-wrapper input[type="password"],
+        .pin-input-wrapper input[type="text"] 
+        {
+            width: 100%;
+            padding: 8px;
+            padding-right: 35px; /* room for the eye icon */
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .messages {
+            margin-top: 15px;
+            color: #d9534f;
+            font-size: 14px;
+        }
+        .back-link {
+            display: block;
+            margin-top: 20px;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .change-pin-outer {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .change-pin-inner {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .eye-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 18px;
+            color: #888;
+            background: none;
+            border: none;
+            outline: none;
+            padding: 0;
+        }
+        .pin-input-wrapper {
+            position: relative;
+        }
+    </style>
+</head>
+<body class="{{ selected_theme }}">
+    {% include 'navbar.html' %}
+    <div class="change-pin-outer">
+      <div class="change-pin-inner">
+        <div class="container">
+            <h1>Change PIN</h1>
+            <form method="post">
+                <label for="current_pin">Current PIN:</label>
+                <div class="pin-input-wrapper">
+                    <input type="password" name="current_pin" id="current-pin" maxlength="4" inputmode="numeric" pattern="\\d{4}" required oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+                    <span class="eye-toggle" onclick="togglePin('current-pin', this)">&#128065;</span>
+                </div>
+                <label for="new_pin">New PIN:</label>
+                <div class="pin-input-wrapper">
+                    <input type="password" name="new_pin" id="new-pin" maxlength="4" inputmode="numeric" pattern="\\d{4}" required oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+                    <span class="eye-toggle" onclick="togglePin('new-pin', this)">&#128065;</span>
+                </div>
+                <label for="confirm_pin">Confirm New PIN:</label>
+                <div class="pin-input-wrapper">
+                    <input type="password" name="confirm_pin" id="confirm-pin" maxlength="4" inputmode="numeric" pattern="\\d{4}" required oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+                    <span class="eye-toggle" onclick="togglePin('confirm-pin', this)">&#128065;</span>
+                </div>
+                <button type="submit">Change PIN</button>
+            </form>
+            <a class="back-link" href="/dashboard">&larr; Back to Dashboard</a>
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <div class="messages">
+                    <ul>
+                    {% for message in messages %}
+                      <li>{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+              {% endif %}
+            {% endwith %}
+        </div>
+      </div>
+    </div>
+    <script>
+    function togglePin(inputId, eyeElem) {
+        var input = document.getElementById(inputId);
+        if (input.type === "password") {
+            input.type = "text";
+            eyeElem.style.color = '#007bff';
+        } else {
+            input.type = "password";
+            eyeElem.style.color = '#888';
+        }
+    }
+    </script>
+</body>
+</html>

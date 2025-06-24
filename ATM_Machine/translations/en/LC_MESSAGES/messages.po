@@ -1,0 +1,50 @@
+msgid "ATM Login"
+msgstr "ATM Login"
+
+msgid "Please enter both Account Number and PIN."
+msgstr "Please enter both Account Number and PIN."
+
+msgid "Invalid admin credentials."
+msgstr "Invalid admin credentials."
+
+msgid "Account is blocked due to too many failed login attempts."
+msgstr "Account is blocked due to too many failed login attempts."
+
+msgid "Invalid credentials. Attempt %(num)d of 3."
+msgstr "Invalid credentials. Attempt %(num)d of 3."
+
+msgid "Account blocked after 3 failed attempts."
+msgstr "Account blocked after 3 failed attempts."
+
+msgid "Your OTP is: %(otp)s"
+msgstr "Your OTP is: %(otp)s"
+
+msgid "Invalid OTP. Please try again."
+msgstr "Invalid OTP. Please try again."
+
+msgid "Withdraw"
+msgstr "Withdraw"
+
+msgid "Deposit"
+msgstr "Deposit"
+
+msgid "Transaction History"
+msgstr "Transaction History"
+
+msgid "Edit Profile"
+msgstr "Edit Profile"
+
+msgid "Change PIN"
+msgstr "Change PIN"
+
+msgid "Logout"
+msgstr "Logout"
+
+msgid "Welcome, %(name)s"
+msgstr "Welcome, %(name)s"
+
+msgid "Registration successful! Your Account Number: %(acc)s, Temporary PIN: %(pin)s. Please log in and change your PIN."
+msgstr "Registration successful! Your Account Number: %(acc)s, Temporary PIN: %(pin)s. Please log in and change your PIN."
+
+msgid "Registration failed. Please try again."
+msgstr "Registration failed. Please try again."

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ATM Machine Home</title>
+    <style>
+        body.light {
+            background: #f4f7fa;
+            color: #222;
+        }
+        body.dark {
+            background: #181c24;
+            color: #f1f1f1;
+        }
+        body.blue {
+            background: linear-gradient(to right, #2c3e50, #3498db);
+            color: #fff;
+        }
+        body.green {
+            background: linear-gradient(120deg, #a8e063, #56ab2f);
+            color: #fff;
+        }
+        body.red {
+            background: linear-gradient(120deg, #ff5858, #f09819);
+            color: #fff;
+        }
+        body.purple {
+            background: linear-gradient(120deg, #a18cd1, #fbc2eb);
+            color: #222;
+        }
+        body.orange {
+            background: linear-gradient(120deg, #f7971e, #ffd200);
+            color: #222;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 40px;
+        }
+
+        a {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #f39c12;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            transition: background-color 0.3s ease;
+        }
+
+        a:hover {
+            background-color: #e67e22;
+        }
+
+        /* Optional: Add box shadow to make it pop */
+        a, h1 {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .container.light { background: #fff; color: #111; }
+        .container.dark { background: #23272f; color: #f1f1f1; }
+        .container.blue { background: #3498db; color: #fff; }
+        .container.green { background: #56ab2f; color: #fff; }
+        .container.red { background: #ff5858; color: #fff; }
+        .container.purple { background: #a18cd1; color: #fff; }
+        .container.orange { background: #ffd200; color: #222; }
+        .container {
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 50px;
+        }
+    </style>
+</head>
+<body class="{{ selected_theme }}">
+    <div class="container {{ selected_theme }}">
+        <h1>Welcome to the ATM Machine Web App</h1>
+        <a href="/login">Login</a>
+    </div>
+</body>
+</html>

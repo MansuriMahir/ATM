@@ -1,6 +1,8 @@
-# creating ATM Machine 
+# creating ATM Machine
 
-from atm_utils import my_decorator, user_accounts, ADMIN_ACCOUNT, ADMIN_PIN
+import datetime
+
+from atm_utils import my_decorator, create_user, get_admin, get_user, update_user_balance, get_db_connection
 
 class ATM:
     def __init__(self, account_number, pin, balance, full_name, address, blood_group, history=None):
@@ -9,9 +11,14 @@ class ATM:
         self.balance = balance
         self.full_name = full_name
         self.address = address
-        self.blood_group = blood_group
-        self.history = history if history else [f"Inital Balance: {balance}"]
+        self.blood_group = blood_group 
+        from atm_utils import get_transaction_history
+        self.history = [f"Initial Balance: {balance}"]
+        transactions = get_transaction_history(self.account_number)
+        for transaction in transactions:
+            self.history.append(f"{transaction['transaction_type']}: {transaction['amount']} | New Balance: {self.balance}")
         self.blocked = False
+        self.transaction_history = []
     
     def authenticate(self, entered_pin):
         return self.pin == entered_pin
@@ -27,73 +34,109 @@ class ATM:
     
     @my_decorator
     def withdraw(self, amount):
-        if self.balance >= amount:
-            self.balance -= amount
-            self.history.append(f"Withdrew: -{amount} | New Balance: {self.balance} ")
-            return "Withdrawal Successful!"
-        else:
-            return "Insufficient Balance!"
+        if self.balance - amount < 0:
+            return "Withdrawal failed: Insufficient balance."
+        
+        self.balance -= amount
+        if self.balance == 100:
+            return "Withdrawal Successful! Your balance is now 100."
+        
+        self.history.append(f"Withdrew: -{amount} | New Balance: {self.balance} ")
+        update_user_balance(self.account_number, self.balance)
+        get_db_connection().commit()
+        from atm_utils import record_transaction
+        record_transaction(self.account_number, "Withdrawal", amount)
+        now = datetime.datetime.now()
+        timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
+        self.transaction_history.append(f"{timestamp} - Withdrawal: -{amount} | New Balance: {self.balance}")
+        return "Withdrawal Successful!"
     
     @my_decorator
     def deposit(self, amount):
+        now = datetime.datetime.now()
+        timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
         self.balance += amount
         self.history.append(f"Deposit: +{amount} | New Balance: {self.balance}")
+        update_user_balance(self.account_number, self.balance)
+        get_db_connection().commit()
+        from atm_utils import record_transaction
+        record_transaction(self.account_number, "Deposit", amount)
+        self.transaction_history.append(f"{timestamp} - Deposit: +{amount} | New Balance: {self.balance}")
         return "Deposit Successful!"
     
     @my_decorator
     def view_history(self):
-        return "\n".join(self.history)
+        return "\n".join(self.transaction_history)
+
 
 class Admin:
-    def __init__(self, account, pin):
-        self.account = account
-        self.pin = pin
+    def __init__(self, username, entered_pin):
+        admin_data = get_admin(username)
+        if admin_data:
+            self.username = admin_data['username']
+            self.pin = admin_data['pin']
+        else:
+            self.username = username
+            self.pin = entered_pin
 
     def authenticate(self, entered_pin):
-        return self.pin == entered_pin
+        if self.pin is not None:
+            return str(self.pin) == str(entered_pin)
+        return False
 
     @my_decorator
     def view_all_users(self):
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users")
+        users = cursor.fetchall()
+        conn.close()
+
         print("\n--- All ATM Users ---")
-        for acc_no, acc_obj in user.items():
-            print(f"Account No : {acc_no}")
-            print(f"Full Name  : {acc_obj.full_name}")
-            print(f"Address    : {acc_obj.address}")
-            print(f"Blood Group: {acc_obj.blood_group}")
-            print(f"Balance    : {acc_obj.balance}")
-            print(f"History    : {len(acc_obj.history) - 1} transaction(s)")
-            print(f"Last Txn   : {acc_obj.history[-1]}")
+        for user in users:
+            print(f"Account No : {user['account_number']}")
+            print(f"Full Name  : {user['full_name']}")
+            print(f"Address    : {user['address']}")
+            print(f"Blood Group: {user['blood_group']}")
+            print(f"Balance    : {user['balance']}")
+            #print(f"History    : {len(acc_obj.history) - 1} transaction(s)") # Transaction history not implemented yet
+            #print(f"Last Txn   : {acc_obj.history[-1]}")
             print("-" * 30)
 
     @my_decorator
     def delete_user(self, acc_no):
-        if acc_no in user:
-            del user[acc_no]
-            print(f"Account {acc_no} deleted successfully.")
-        else:
-            print("Account not found.")
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM users WHERE account_number = ?", (acc_no,))
+        conn.commit()
+        conn.close()
+        print(f"Account {acc_no} deleted successfully.")
 
     @my_decorator
     def reset_pin(self, acc_no, new_pin):
-        if acc_no in user:
-            user[acc_no].pin = new_pin
-            user[acc_no].history.append(f"PIN reset by Admin.")
-            print(f"PIN for Account {acc_no} reset successfully.")
-        else:
-            print("Account not found.")
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET pin = ? WHERE account_number = ?", (new_pin, acc_no))
+        conn.commit()
+        conn.close()
+        print(f"PIN for Account {acc_no} reset successfully.")
 
     @my_decorator
     def reset_balance(self, acc_no, new_balance):
-        if acc_no in user:
-            user[acc_no].balance = new_balance
-            user[acc_no].history.append(f"Balance reset by Admin to {new_balance}")
-            print(f"Balance for Account {acc_no} reset successfully.")
-        else:
-            print("Account not found.")
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET balance = ? WHERE account_number = ?", (new_balance, acc_no))
+        conn.commit()
+        conn.close()
+        print(f"Balance for Account {acc_no} reset successfully.")
 
     @my_decorator
     def view_total_funds(self):
-        total = sum(acc.balance for acc in user.values())
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT SUM(balance) FROM users")
+        total = cursor.fetchone()[0]
+        conn.close()
         print(f"Total money in ATM System: {total}")
 
 @my_decorator   
@@ -135,61 +178,61 @@ def make_choice(atm: ATM):
                 print("Invalid amount. Please enter a number")
 
         elif choice == "4":
-            pass
+            print(atm.view_history())
     
         elif choice == "5":
             print("thank you for using the ATM")
-            break
+            return # Changed break to return
         else:
             print("Invalid choice. Please try again. ")
 
-# Initialize user dictionary from user_accounts data
-user = {}
-for acc_no, acc_data in user_accounts.items():
-    user[acc_no] = ATM(
-        acc_data["account_number"],
-        acc_data["pin"],
-        acc_data["balance"],
-        acc_data["full_name"],
-        acc_data["address"],
-        acc_data["blood_group"],
-        acc_data["history"]
-    )
 
 @my_decorator
 def show_user_list():
-    if not user:
-        print("No user found in the system. ")
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users")
+    users = cursor.fetchall()
+    conn.close()
+
+    if not users:
+        print("No user found in the system.")
         return
+
     print("\n--- Registered User in ATM ---")
-    for acc_no, acc_obj in user.items():
-        last_txn = acc_obj.history[-1] if len(acc_obj.history) > 1 else "No transactions yet "
-        print(f"Account Number: {acc_no}")
-        print(f"Balance       : {acc_obj.balance}")
-        print(f"Transaction   : {len(acc_obj.history)-1} ")
-        print(f"Last Transaction: {last_txn}")
+    for user in users:
+        print(f"Account Number: {user['account_number']}")
+        print(f"Balance       : {user['balance']}")
+        #print(f"Transaction   : {len(acc_obj.history)-1} ") # Transaction history not implemented yet
+        #print(f"Last Transaction: {last_txn}")
         print("-" * 30)
 
 def create_account():
     print("\n--- Create New Account ---")
     while True:
         new_acc = input("Enter new Account Number: ")
-        if new_acc in user:
-            print("Account already exits. try a different number. ")
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE account_number = ?", (new_acc,))
+        existing_user = cursor.fetchone()
+        conn.close()
+        if existing_user:
+            print("Account already exists. Try a different number.")
         else:
             break
+
     try:
         new_pin = int(input("Set a 4-digit PIN: "))
-        init_balance = float(input("Enter inital deposit amount: "))
+        init_balance = float(input("Enter initial deposit amount: "))
         full_name = input("Enter your full name: ")
         address = input("Enter your address: ")
         blood_group = input("Enter your blood group: ")
     except ValueError:
         print("Invalid input! Account creation failed")
         return
-    
-    user[new_acc] = ATM(new_acc, new_pin, init_balance, full_name, address, blood_group)
-    print(f"Account created successfuly! Account No:{new_acc}")
+
+    create_user(new_acc, new_pin, init_balance, full_name, address, blood_group)
+    print(f"Account created successfully! Account No:{new_acc}")
 
 def handle_admin_panel(admin):
     while True:
@@ -202,14 +245,14 @@ def handle_admin_panel(admin):
         print("6. Exit Admin Panel")
 
         admin_choice = input("Enter your Choice: ")
-        
+
         if admin_choice == "1":
             admin.view_all_users()
-        
+
         elif admin_choice == "2":
             acc_no = input("Enter account number to delete: ")
             admin.delete_user(acc_no)
-        
+
         elif admin_choice == "3":
             acc_no = input("Enter account number to reset PIN: ")
             try:
@@ -217,3 +260,23 @@ def handle_admin_panel(admin):
                 admin.reset_pin(acc_no, new_pin)
             except ValueError:
                 print("Invalid PIN. Please enter a number.")
+
+# Test functions
+def test_create_user():
+    create_user("4001", 1234, 1000, "Test User", "Test Address", "O+")
+    print("User created successfully!")
+
+def test_get_user():
+    user = get_user("4001")
+    if user:
+        print(f"User found: {user['full_name']}")
+    else:
+        print("User not found.")
+
+def test_update_balance():
+    update_user_balance("4001", 2000)
+    print("Balance updated successfully!")
+
+# test_create_user()
+# test_get_user()
+# test_update_balance()

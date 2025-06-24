@@ -1,0 +1,50 @@
+msgid "ATM Login"
+msgstr "एटीएम लॉगिन"
+
+msgid "Please enter both Account Number and PIN."
+msgstr "कृपया दोनों खाता संख्या और पिन दर्ज करें।"
+
+msgid "Invalid admin credentials."
+msgstr "अमान्य व्यवस्थापक प्रमाण-पत्र।"
+
+msgid "Account is blocked due to too many failed login attempts."
+msgstr "बहुत अधिक असफल प्रयासों के कारण खाता अवरुद्ध है।"
+
+msgid "Invalid credentials. Attempt %(num)d of 3."
+msgstr "अमान्य प्रमाण-पत्र। प्रयास %(num)d में से 3।"
+
+msgid "Account blocked after 3 failed attempts."
+msgstr "3 असफल प्रयासों के बाद खाता अवरुद्ध हो गया है।"
+
+msgid "Your OTP is: %(otp)s"
+msgstr "आपका ओटीपी है: %(otp)s"
+
+msgid "Invalid OTP. Please try again."
+msgstr "अमान्य ओटीपी। कृपया पुनः प्रयास करें।"
+
+msgid "Withdraw"
+msgstr "निकासी"
+
+msgid "Deposit"
+msgstr "जमा करें"
+
+msgid "Transaction History"
+msgstr "लेन-देन इतिहास"
+
+msgid "Edit Profile"
+msgstr "प्रोफ़ाइल संपादित करें"
+
+msgid "Change PIN"
+msgstr "पिन बदलें"
+
+msgid "Logout"
+msgstr "लॉग आउट"
+
+msgid "Welcome, %(name)s"
+msgstr "स्वागत है, %(name)s"
+
+msgid "Registration successful! Your Account Number: %(acc)s, Temporary PIN: %(pin)s. Please log in and change your PIN."
+msgstr "पंजीकरण सफल! आपका खाता संख्या: %(acc)s, अस्थायी पिन: %(pin)s. कृपया लॉगिन करें और अपना पिन बदलें।"
+
+msgid "Registration failed. Please try again."
+msgstr "पंजीकरण विफल रहा। कृपया पुनः प्रयास करें।"

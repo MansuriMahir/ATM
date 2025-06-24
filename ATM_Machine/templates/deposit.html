@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Deposit</title>
+    <style>
+        body.light {
+            background: #f4f7fa;
+            color: #222;
+        }
+        body.dark {
+            background: #181c24;
+            color: #f1f1f1;
+        }
+        body.blue {
+            background: linear-gradient(to right, #2c3e50, #3498db);
+            color: #fff;
+        }
+        body.green {
+            background: linear-gradient(120deg, #a8e063, #56ab2f);
+            color: #fff;
+        }
+        body.red {
+            background: linear-gradient(120deg, #ff5858, #f09819);
+            color: #fff;
+        }
+        body.purple {
+            background: linear-gradient(120deg, #a18cd1, #fbc2eb);
+            color: #222;
+        }
+        body.orange {
+            background: linear-gradient(120deg, #f7971e, #ffd200);
+            color: #222;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+        }
+
+        .deposit-outer {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .deposit-container.light { background: #fff; color: #111; }
+        .deposit-container.dark { background: #23272f; color: #f1f1f1; }
+        .deposit-container.blue { background: #3498db; color: #fff; }
+        .deposit-container.green { background: #56ab2f; color: #fff; }
+        .deposit-container.red { background: #ff5858; color: #fff; }
+        .deposit-container.purple { background: #a18cd1; color: #fff; }
+        .deposit-container.orange { background: #ffd200; color: #222; }
+        .deposit-container {
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            text-align: left;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #111 !important;
+        }
+
+        input[type="number"],
+        input[type="password"] {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 20px;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .messages {
+            margin-top: 15px;
+            color: #d9534f;
+            text-align: left;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        .eye-toggle {
+            position: absolute;
+            right: 16px;
+            top: 22px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 18px;
+            color: #888;
+            background: none;
+            border: none;
+            outline: none;
+            padding: 0;
+        }
+
+        .pin-input-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+            height: 46px; /* Adjusted for better alignment */
+        }
+        .pin-input-wrapper input[type="password"],
+        .pin-input-wrapper input[type="text"] 
+        {
+            width: 100%;
+            padding: 10px;
+            padding-right: 35px; /* space for eye icon */
+            border: 1px solid #ccc; 
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            line-height: 1.5;
+            transition: all 0.2s ease-in-out; /* smooth transition to avoid jump */
+        }
+    </style>
+</head>
+<body class="{{ selected_theme }}">
+    {% include 'navbar.html' %}
+    <div class="deposit-outer" style="min-height:100vh;display:flex;flex-direction:column;">
+      <div style="flex:1;display:flex;justify-content:center;align-items:center;">
+        <div class="deposit-container">
+            <h1>Deposit Funds</h1>
+            <form method="post">
+                <label for="amount">Amount:</label>
+                <input type="number" name="amount" id="amount" min="1" step="0.01" required>
+                <label for="pin">Enter PIN:</label>
+                <div class="pin-input-wrapper">
+                    <input type="password" name="pin" id="deposit-pin" maxlength="4" inputmode="numeric" pattern="\\d{4}" required oninput="this.value=this.value.replace(/[^0-9]/g,'');">
+                    <span class="eye-toggle" onclick="togglePin('deposit-pin', this)">&#128065;</span>
+                </div>
+                <button type="submit">Deposit</button>
+            </form>
+
+            <a class="back-link" href="/dashboard">← Back to Dashboard</a>
+
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <div class="messages">
+                    <ul>
+                        {% for message in messages %}
+                          <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+              {% endif %}
+            {% endwith %}
+        </div>
+      </div>
+    </div>
+    <script>
+    function togglePin(inputId, eyeElem) {
+        var input = document.getElementById(inputId);
+        if (input.type === "password") {
+            input.type = "text";
+            eyeElem.style.color = '#007bff';
+        } else {
+            input.type = "password";
+            eyeElem.style.color = '#888';
+        }
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transaction History</title>
+    <style>
+        body.light {
+            background: #f4f7fa;
+            color: #222;
+        }
+        body.dark {
+            background: #181c24;
+            color: #f1f1f1;
+        }
+        body.blue {
+            background: linear-gradient(to right, #2c3e50, #3498db);
+            color: #fff;
+        }
+        body.green {
+            background: linear-gradient(120deg, #a8e063, #56ab2f);
+            color: #fff;
+        }
+        body.red {
+            background: linear-gradient(120deg, #ff5858, #f09819);
+            color: #fff;
+        }
+        body.purple {
+            background: linear-gradient(120deg, #a18cd1, #fbc2eb);
+            color: #222;
+        }
+        body.orange {
+            background: linear-gradient(120deg, #f7971e, #ffd200);
+            color: #222;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+        }
+
+        .container.light { background: #fff; color: #111; }
+        .container.dark { background: #23272f; color: #f1f1f1; }
+        .container.blue { background: #3498db; color: #fff; }
+        .container.green { background: #56ab2f; color: #fff; }
+        .container.red { background: #ff5858; color: #fff; }
+        .container.purple { background: #a18cd1; color: #fff; }
+        .container.orange { background: #ffd200; color: #222; }
+        .container {
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            width: 95%;
+            margin-top: 50px;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #222;
+            font-size: 28px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 14px 16px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background-color: #007bff;
+            color: #fff !important;
+            font-size: 16px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        td:nth-child(4) {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        td:nth-child(5) {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .balance-row td {
+            font-weight: bold;
+            background-color: #e8f5e9;
+            color: #2e7d32 !important;
+            font-size: 16px;
+        }
+
+        .balance-row td[colspan="3"] {
+            text-align: right;
+            color: #000;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 15px;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                padding: 25px;
+            }
+
+            th, td {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body class="{{ selected_theme }}">
+    {% include 'navbar.html' %}
+    <div class="transactions-outer" style="min-height:100vh;display:flex;flex-direction:column;">
+      <div style="flex:1;display:flex;justify-content:center;align-items:center;">
+        <div class="container">
+            <h1>Transaction History</h1>
+            <table>
+                <tr>
+                    <th>Date/Time</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Credit</th>
+                    <th>Debit</th>
+                </tr>
+                {% for tx in transactions %}
+                <tr>
+                    <td>{{ tx['timestamp'] }}</td>
+                    <td>{{ tx['transaction_type'].capitalize() }}</td>
+                    <td>₹ {{ tx['amount'] }}</td>
+                    <td>{% if tx['transaction_type'].lower() == 'deposit' %}₹ {{ tx['amount'] }}{% else %}-{% endif %}</td>
+                    <td>{% if tx['transaction_type'].lower() == 'withdraw' %}₹ {{ tx['amount'] }}{% else %}-{% endif %}</td>
+                </tr>
+                {% endfor %}
+                <tr class="balance-row">
+                    <td colspan="2">Available Balance</td>
+                    <td colspan="3">₹ {{ balance }}</td>
+                </tr>
+            </table>
+
+            <div style="text-align:center;">
+                <a href="/dashboard">← Back to Dashboard</a>
+            </div>
+        </div>
+      </div>
+    </div>
+</body>
+</html>

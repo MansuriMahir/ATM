@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ATM Dashboard</title>
+    <style>
+        body.light {
+            background: #f4f7fa;
+            color: #222;
+        }
+
+        body.dark {
+            background: #181c24;
+            color: #f1f1f1;
+        }
+
+        body.blue {
+            background: linear-gradient(to right, #2c3e50, #3498db);
+            color: #222;
+        }
+
+        body.green {
+            background: linear-gradient(120deg, #a8e063, #56ab2f);
+            color: #222;
+        }
+
+        body.red {
+            background: linear-gradient(120deg, #ff5858, #f09819);
+            color: #fff;
+        }
+
+        body.purple {
+            background: linear-gradient(120deg, #a18cd1, #fbc2eb);
+            color: #222;
+        }
+
+        body.orange {
+            background: linear-gradient(120deg, #f7971e, #ffd200);
+            color: #222;
+        }
+
+        .dashboard-container.light {
+            background: #fff;
+            color: #111;
+        }
+
+        .dashboard-container.dark {
+            background: #23272f;
+            color: #f1f1f1;
+        }
+
+        .dashboard-container.blue {
+            background: #3498db;
+            color: #fff;
+        }
+
+        .dashboard-container.green {
+            background: #56ab2f;
+            color: #fff;
+        }
+
+        .dashboard-container.red {
+            background: #ff5858;
+            color: #fff;
+        }
+
+        .dashboard-container.purple {
+            background: #a18cd1;
+            color: #fff;
+        }
+
+        .dashboard-container.orange {
+            background: #ffd200;
+            color: #222;
+        }
+
+        .dashboard-container.black {
+            background: #f1f1f1;
+            color: #23272f;
+        }
+
+        .dashboard-container {
+            padding: 40px 50px;
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            color: #333333;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 16px;
+            color: #555;
+            margin: 10px 0;
+        }
+
+        .transactions-table {
+            margin: 30px auto 0 auto;
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff !important;
+            color: #222;
+        }
+
+        .transactions-table th,
+        .transactions-table td {
+            padding: 10px 12px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            /* soft line in dark too */
+        }
+
+        /* Theme-specific table background */
+        .dashboard-container.light .transactions-table,
+        .dashboard-container.dark .transactions-table,
+        .dashboard-container.blue .transactions-table,
+        .dashboard-container.green .transactions-table,
+        .dashboard-container.red .transactions-table,
+        .dashboard-container.purple .transactions-table,
+        .dashboard-container.orange .transactions-table {
+            background: #fff !important;
+            color: #222;
+        }
+
+        .transactions-table th {
+            background: #007bff;
+            color: #fff;
+        }
+
+        .transactions-table tr:last-child td {
+            border-bottom: 2px solid #007bff;
+        }
+
+        .transactions-table td.credit {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .transactions-table td.debit {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body class="{{ selected_theme }}" style="height: 100vh; display: flex; flex-direction: column; align-items: center;">
+    {% include 'navbar.html' %}
+    <div class="dashboard-container {{ selected_theme }}">
+        <h1>Welcome, {{ user.full_name }}</h1>
+        <p><strong>Account Number:</strong> {{ user.account_number }}</p>
+        <p><strong>Balance:</strong> ₹ {{ user.balance }}</p>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="messages" style="color:#d9534f; margin:10px 0;">
+            <ul>
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        {% endwith %}
+        <h2 style="margin-top:35px;">Recent Transactions</h2>
+        <table class="transactions-table">
+            <tr>
+                <th>Date/Time</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Credit</th>
+                <th>Debit</th>
+            </tr>
+            {% for tx in recent_transactions %}
+            <tr>
+                <td>{{ tx['timestamp'] }}</td>
+                <td>{{ tx['transaction_type'].capitalize() }}</td>
+                <td>₹ {{ tx['amount'] }}</td>
+                <td class="credit">{% if tx['transaction_type'].lower() == 'deposit' %}₹ {{ tx['amount'] }}{% else %}-{%
+                    endif %}</td>
+                <td class="debit">{% if tx['transaction_type'].lower() == 'withdraw' %}₹ {{ tx['amount'] }}{% else %}-{%
+                    endif %}</td>
+            </tr>
+            {% endfor %}
+            {% if recent_transactions|length == 0 %}
+            <tr>
+                <td colspan="5">No recent transactions.</td>
+            </tr>
+            {% endif %}
+        </table>
+    </div>
+</body>
+
+</html>
